@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -IHeaders -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Server1.0.0
-DISTDIR = /home/eust/Scripts/Qt/TestOnlineChat/Server/.tmp/Server1.0.0
+DISTDIR = /home/eust/Scripts/Qt/TestOnlineChat/Server/Objects/Server1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
@@ -48,15 +48,23 @@ STRIP         = strip
 
 ####### Output directory
 
-OBJECTS_DIR   = ./
+OBJECTS_DIR   = Objects/
 
 ####### Files
 
-SOURCES       = Server.cpp \
-		main.cpp moc_Server.cpp
-OBJECTS       = Server.o \
-		main.o \
-		moc_Server.o
+SOURCES       = Sources/main.cpp \
+		Sources/msg.cpp \
+		Sources/Server.cpp \
+		Sources/TcpSocket.cpp \
+		Sources/DataBase.cpp moc_Server.cpp \
+		moc_TcpSocket.cpp
+OBJECTS       = Objects/main.o \
+		Objects/msg.o \
+		Objects/Server.o \
+		Objects/TcpSocket.o \
+		Objects/DataBase.o \
+		Objects/moc_Server.o \
+		Objects/moc_TcpSocket.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -134,8 +142,15 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		Server.pro Server.h Server.cpp \
-		main.cpp
+		Server.pro Headers/msg.h \
+		Headers/Server.h \
+		Headers/TcpSocket.h \
+		Headers/DataBase.h \
+		Headers/User.h Sources/main.cpp \
+		Sources/msg.cpp \
+		Sources/Server.cpp \
+		Sources/TcpSocket.cpp \
+		Sources/DataBase.cpp
 QMAKE_TARGET  = Server
 DESTDIR       = 
 TARGET        = Server
@@ -319,8 +334,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Server.h $(DISTDIR)/
-	$(COPY_FILE) --parents Server.cpp main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents Headers/msg.h Headers/Server.h Headers/TcpSocket.h Headers/DataBase.h Headers/User.h $(DISTDIR)/
+	$(COPY_FILE) --parents Sources/main.cpp Sources/msg.cpp Sources/Server.cpp Sources/TcpSocket.cpp Sources/DataBase.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -351,13 +366,22 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_Server.cpp
+compiler_moc_header_make_all: moc_Server.cpp moc_TcpSocket.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_Server.cpp
-moc_Server.cpp: Server.h \
+	-$(DEL_FILE) moc_Server.cpp moc_TcpSocket.cpp
+moc_Server.cpp: Headers/Server.h \
+		Headers/msg.h \
+		Headers/TcpSocket.h \
+		Headers/User.h \
+		Headers/DataBase.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/eust/Scripts/Qt/TestOnlineChat/Server/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/eust/Scripts/Qt/TestOnlineChat/Server -I/home/eust/Scripts/Qt/TestOnlineChat/Server -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Server.h -o moc_Server.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/eust/Scripts/Qt/TestOnlineChat/Server/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/eust/Scripts/Qt/TestOnlineChat/Server -I/home/eust/Scripts/Qt/TestOnlineChat/Server/Headers -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Headers/Server.h -o moc_Server.cpp
+
+moc_TcpSocket.cpp: Headers/TcpSocket.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/eust/Scripts/Qt/TestOnlineChat/Server/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/eust/Scripts/Qt/TestOnlineChat/Server -I/home/eust/Scripts/Qt/TestOnlineChat/Server/Headers -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Headers/TcpSocket.h -o moc_TcpSocket.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -375,14 +399,36 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-Server.o: Server.cpp Server.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Server.o Server.cpp
+Objects/main.o: Sources/main.cpp Headers/Server.h \
+		Headers/msg.h \
+		Headers/TcpSocket.h \
+		Headers/User.h \
+		Headers/DataBase.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/main.o Sources/main.cpp
 
-main.o: main.cpp Server.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+Objects/msg.o: Sources/msg.cpp Headers/msg.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/msg.o Sources/msg.cpp
 
-moc_Server.o: moc_Server.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Server.o moc_Server.cpp
+Objects/Server.o: Sources/Server.cpp Headers/Server.h \
+		Headers/msg.h \
+		Headers/TcpSocket.h \
+		Headers/User.h \
+		Headers/DataBase.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/Server.o Sources/Server.cpp
+
+Objects/TcpSocket.o: Sources/TcpSocket.cpp Headers/TcpSocket.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/TcpSocket.o Sources/TcpSocket.cpp
+
+Objects/DataBase.o: Sources/DataBase.cpp Headers/DataBase.h \
+		Headers/User.h \
+		Headers/msg.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/DataBase.o Sources/DataBase.cpp
+
+Objects/moc_Server.o: moc_Server.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/moc_Server.o moc_Server.cpp
+
+Objects/moc_TcpSocket.o: moc_TcpSocket.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/moc_TcpSocket.o moc_TcpSocket.cpp
 
 ####### Install
 

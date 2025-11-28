@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -IHeaders -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Client1.0.0
-DISTDIR = /home/eust/Scripts/Qt/TestOnlineChat/Client/.tmp/Client1.0.0
+DISTDIR = /home/eust/Scripts/Qt/TestOnlineChat/Client/Objects/Client1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
@@ -48,15 +48,17 @@ STRIP         = strip
 
 ####### Output directory
 
-OBJECTS_DIR   = ./
+OBJECTS_DIR   = Objects/
 
 ####### Files
 
-SOURCES       = Client.cpp \
-		main.cpp moc_Client.cpp
-OBJECTS       = Client.o \
-		main.o \
-		moc_Client.o
+SOURCES       = Sources/Client.cpp \
+		Sources/main.cpp \
+		Sources/msg.cpp moc_Client.cpp
+OBJECTS       = Objects/Client.o \
+		Objects/main.o \
+		Objects/msg.o \
+		Objects/moc_Client.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -134,8 +136,10 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		Client.pro Client.h Client.cpp \
-		main.cpp
+		Client.pro Headers/Client.h \
+		Headers/msg.h Sources/Client.cpp \
+		Sources/main.cpp \
+		Sources/msg.cpp
 QMAKE_TARGET  = Client
 DESTDIR       = 
 TARGET        = Client
@@ -319,8 +323,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Client.h $(DISTDIR)/
-	$(COPY_FILE) --parents Client.cpp main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents Headers/Client.h Headers/msg.h $(DISTDIR)/
+	$(COPY_FILE) --parents Sources/Client.cpp Sources/main.cpp Sources/msg.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -354,10 +358,11 @@ moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 compiler_moc_header_make_all: moc_Client.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_Client.cpp
-moc_Client.cpp: Client.h \
+moc_Client.cpp: Headers/Client.h \
+		Headers/msg.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/eust/Scripts/Qt/TestOnlineChat/Client/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/eust/Scripts/Qt/TestOnlineChat/Client -I/home/eust/Scripts/Qt/TestOnlineChat/Client -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Client.h -o moc_Client.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/eust/Scripts/Qt/TestOnlineChat/Client/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/eust/Scripts/Qt/TestOnlineChat/Client -I/home/eust/Scripts/Qt/TestOnlineChat/Client/Headers -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Headers/Client.h -o moc_Client.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -375,14 +380,19 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-Client.o: Client.cpp Client.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Client.o Client.cpp
+Objects/Client.o: Sources/Client.cpp Headers/Client.h \
+		Headers/msg.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/Client.o Sources/Client.cpp
 
-main.o: main.cpp Client.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+Objects/main.o: Sources/main.cpp Headers/Client.h \
+		Headers/msg.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/main.o Sources/main.cpp
 
-moc_Client.o: moc_Client.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Client.o moc_Client.cpp
+Objects/msg.o: Sources/msg.cpp Headers/msg.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/msg.o Sources/msg.cpp
+
+Objects/moc_Client.o: moc_Client.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/moc_Client.o moc_Client.cpp
 
 ####### Install
 
