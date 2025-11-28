@@ -5,6 +5,7 @@
 #include <iostream>
 #include <QString>
 #include <string>
+#include <vector>
 #include "User.h"
 #include "msg.h"
 
@@ -13,6 +14,7 @@ using std::ifstream;
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 
 template<typename T>
@@ -43,6 +45,20 @@ public:
 		}		
 		ifs.close();
 		return false;
+	}
+	vector<T> getAllObj()
+	{
+		vector<T> Res {};
+		T _obj {};
+		ifstream ifs(baseName.c_str(), std::ios::in | std::ios::binary);
+		while(!ifs.eof()) {
+			cout << sizeof(T) << endl;
+			ifs.read(reinterpret_cast<char*>(&_obj), sizeof(T));
+			Res.push_back(_obj);
+		}		
+		ifs.close();
+		cout << Res.size() << endl;
+		return Res;
 	}
 };
 

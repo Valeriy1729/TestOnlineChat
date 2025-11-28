@@ -46,6 +46,7 @@ class Server : public QTcpServer
 
 	void SendToClient(Message msg);
 	void sendCode(quint8 code, TcpSocket* socket);
+	void sendPrevMessages(TcpSocket* socket);
 	bool login(QString name, QString passHash);
 	bool auth(QString name, QString passHash);
 

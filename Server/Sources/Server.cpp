@@ -36,6 +36,24 @@ void Server::incomingConnection(qintptr socketDescriptor)
 	cout << "Client connected" << endl;
 }
 
+void Server::sendPrevMessages(TcpSocket* socket)
+{
+	return; // unfinished
+
+      	for(Message msg : MessageBase.getAllObj()) {
+		if (msg.text == "") continue;
+      		qDebug() << "MESSAGE:" << msg.text;
+      		Data.clear();
+       		QDataStream out(&Data, QIODevice::WriteOnly);
+       		out.setVersion(QDataStream::Qt_5_2);
+       		out << quint16(0) << msg.time << msg.userName << msg.text;
+       		out.device()->seek(0);
+       		out << quint16(Data.size() - sizeof(quint16));
+       		socket->write(Data);
+		QThread::sleep(0.1);
+       	}
+}
+
 void Server::SendToClient(Message msg)
 {
 	Data.clear();
@@ -81,6 +99,7 @@ void Server::slotReadyRead()
 			if(code == MESSAGE_CODE) {
 				in >> msg.time >> msg.userName >> msg.text;
 				SendToClient(msg);
+				MessageBase.writeObj(&msg);
 				qDebug() << "msg: " << msg.formated();
 			} else if(code == LOGIN_CODE) {
 				in >> name >> passHash;
@@ -90,9 +109,11 @@ void Server::slotReadyRead()
 					sendCode(WRONG_LOGIN_CODE, currSocket);
 			} else if(code == AUTH_CODE) {
 				in >> name >> passHash;
-				if(auth(name, passHash) == true)
+				if(auth(name, passHash) == true) {
 					sendCode(OK_AUTH_CODE, currSocket);
-				else
+					QThread::sleep(0.5);
+					sendPrevMessages(currSocket);
+				} else
 					sendCode(WRONG_AUTH_CODE, currSocket);
 			}
 
@@ -113,7 +134,7 @@ bool Server::login(QString name, QString passHash)
 	if(UserBase.findObj(&newUser) == true) return false;
 
 	UserBase.writeObj(&newUser);
-	qDebug() << name << QString(" logined sucessfully");	
+	qDebug() << name + QString(" logined sucessfully");	
 
 	return true;
 }
